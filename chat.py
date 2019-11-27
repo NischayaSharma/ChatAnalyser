@@ -55,6 +55,6 @@ for eachLine in file:
 
 table = [names, numOfTexts, convoInit]
 print(tabulate(table))
-plt.scatter(yHrs,xDays)
+plt.scatter(yHrs, xDays)
 plt.show()
 file.close()
