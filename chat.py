@@ -1,14 +1,21 @@
 import re
 import time
+import numpy as np
 from tabulate import tabulate
+from matplotlib import pyplot as plt
+from scipy.stats import gaussian_kde
 
-
-file = open('chatApooh.txt', 'r')
+fileName = raw_input("Enter the file name: ")
+file = open(fileName, 'r')
 text = ""
 line = ""
 names = []
 numOfTexts = []
 convoInit = []
+xDays = []
+yHrs = []
+dictDays = {0: "Monday", 1: "Tuesday", 2: "Wednesday",
+            3: "Thursday", 4: "Friday", 5: "Saturday", 6: "Sunday"}
 prevTime = 0
 prevDate = ""
 
@@ -24,26 +31,30 @@ for eachLine in file:
     const = 0
     if (timeTexted.endswith("PM")):
         const = 12
-    hrs = str(int(timeTexted.split()[0].split(":")[0] if timeTexted.split()[0].split(":")[0]!="12" else "0" ) + const)
+    hrs = str(int(timeTexted.split()[0].split(":")[0] if timeTexted.split()[
+              0].split(":")[0] != "12" else "0") + const)
     mins = timeTexted.split()[0].split(":")[1]
     dateTime = dateTexted+" "+hrs+" "+mins
-    timeTxt = time.mktime(time.strptime(dateTime,"%m/%d/%y %H %M"))
+    txtInfo = time.strptime(dateTime, "%m/%d/%y %H %M")
+    timeTxt = time.mktime(txtInfo)
+    xDays.append(dictDays[txtInfo[6]])
+    yHrs.append((int(hrs)*60)+(int(mins)))
 
     if(len(text.split(':')) > 1):
         if(text.split(':')[0] in names):
             numOfTexts[names.index(text.split(':')[0])] += 1
             if(timeTxt-prevTime >= 3600):
                 convoInit[names.index(text.split(':')[0])] += 1
-                print "Convo init by ",names[names.index(text.split(':')[0])]
         else:
             names.append(text.split(':')[0])
             numOfTexts.append(1)
             convoInit.append(0)
 
-    print (prevTime,  timeTexted, prevDate, dateTexted,dateTime,timeTxt)
     prevDate = dateTexted
     prevTime = timeTxt
 
 table = [names, numOfTexts, convoInit]
 print(tabulate(table))
+plt.scatter(yHrs,xDays)
+plt.show()
 file.close()
